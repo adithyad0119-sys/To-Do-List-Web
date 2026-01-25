@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>To-Do List Dashboard</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+  <div class="app">
+    <div class="header">
+      <h2>📝 To-Do List Dashboard</h2>
+      <button class="toggle-mode" onclick="toggleDarkMode()">🌙 Dark</button>
+    </div>
+
+    <div class="stats">
+      <div>Total: <span id="total">0</span></div>
+      <div>Active: <span id="active">0</span></div>
+      <div>Completed: <span id="completed">0</span></div>
+    </div>
+
+    <!-- Search -->
+    <div class="search-group">
+      <input type="text" id="searchInput" placeholder="Search tasks...">
+      <button class="search-btn" onclick="searchTasks()">🔍</button>
+    </div>
+
+    <!-- Add Task -->
+    <div class="input-group">
+      <input type="text" id="taskInput" placeholder="Add a new task...">
+      <button class="add-btn" onclick="addTask()">Add</button>
+    </div>
+
+    <!-- Sort -->
+    <div class="sort-bar">
+      Sort by:
+      <select id="sortSelect" onchange="renderTasks()">
+        <option value="az">A-Z</option>
+        <option value="latest">Latest</option>
+      </select>
+    </div>
+
+    <!-- Task List -->
+    <ul id="taskList"></ul>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

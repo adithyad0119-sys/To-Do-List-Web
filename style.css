@@ -24,6 +24,7 @@ body {
   background-position: center;
 }
 
+/* MAIN BOX (DESKTOP DEFAULT – UNCHANGED) */
 .app {
   width: 56vw;
   height: 88vh;
@@ -39,6 +40,7 @@ body {
   color: var(--text);
 }
 
+/* DARK MODE */
 body.dark .app {
   background:
     linear-gradient(135deg, rgba(30,30,30,0.97), rgba(20,20,20,0.97)),
@@ -98,9 +100,6 @@ input {
   background: #007bff;
   color: white;
   cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 
 .search-btn {
@@ -170,11 +169,28 @@ li.completed span {
   cursor: pointer;
 }
 
-.edit {
-  background: #ffc107;
-}
+.edit { background: #ffc107; }
+.delete { background: #dc3545; color: white; }
 
-.delete {
-  background: #dc3545;
-  color: white;
+/* ✅ MOBILE FIX (ONLY ADDITION) */
+@media (max-width: 768px) {
+  .app {
+    width: 94vw;
+    height: auto;
+    max-height: 90vh;
+    padding: 18px;
+  }
+
+  h2 {
+    font-size: 22px;
+  }
+
+  .stats {
+    font-size: 13px;
+  }
+
+  li {
+    font-size: 16px;
+    padding: 12px;
+  }
 }

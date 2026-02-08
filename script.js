@@ -1,123 +1,108 @@
 let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
 let darkMode = localStorage.getItem("darkMode") === "true";
 
-const total = document.getElementById("total");
-const active = document.getElementById("active");
-const completed = document.getElementById("completed");
+const taskInput = document.getElementById("taskInput");
+const searchInput = document.getElementById("searchInput");
+const taskList = document.getElementById("taskList");
+const sortSelect = document.getElementById("sortSelect");
 
-/* Dark Mode */
-if (darkMode) {
-  document.body.classList.add("dark");
-  document.querySelector(".toggle-mode").textContent = "☀ Light";
-}
+const totalEl = document.getElementById("total");
+const activeEl = document.getElementById("active");
+const completedEl = document.getElementById("completed");
+
+if (darkMode) document.body.classList.add("dark");
 
 function toggleDarkMode() {
   darkMode = !darkMode;
   document.body.classList.toggle("dark");
   localStorage.setItem("darkMode", darkMode);
-  document.querySelector(".toggle-mode").textContent =
-    darkMode ? "☀ Light" : "🌙 Dark";
 }
 
 function saveTasks() {
   localStorage.setItem("tasks", JSON.stringify(tasks));
 }
 
-function updateStats() {
-  total.textContent = tasks.length;
-  active.textContent = tasks.filter(t => !t.completed).length;
-  completed.textContent = tasks.filter(t => t.completed).length;
+function sortTasks() {
+  if (sortSelect.value === "az") {
+    tasks.sort((a, b) => a.text.localeCompare(b.text));
+  } else {
+    tasks.sort((a, b) => b.created - a.created);
+  }
+  tasks.sort((a, b) => a.completed - b.completed);
 }
 
-function renderTasks(filtered = null) {
-  const searchVal = document.getElementById("searchInput").value.toLowerCase();
-  const sortOption = document.getElementById("sortSelect").value;
+function updateStats() {
+  totalEl.textContent = tasks.length;
+  activeEl.textContent = tasks.filter(t => !t.completed).length;
+  completedEl.textContent = tasks.filter(t => t.completed).length;
+}
 
-  let displayTasks = filtered || [...tasks];
-  displayTasks = displayTasks.filter(t =>
-    t.text.toLowerCase().includes(searchVal)
-  );
-
-  displayTasks.sort((a, b) => {
-    if (a.completed !== b.completed) return a.completed - b.completed;
-    if (sortOption === "az") return a.text.localeCompare(b.text);
-    return b.id - a.id;
-  });
-
+function renderTasks() {
+  sortTasks();
   updateStats();
+  taskList.innerHTML = "";
 
-  const list = document.getElementById("taskList");
-  list.innerHTML = "";
+  const query = searchInput.value.toLowerCase();
 
-  displayTasks.forEach(task => {
-    list.innerHTML += `
-      <li class="${task.completed ? "completed" : ""}">
+  tasks.filter(t => t.text.toLowerCase().includes(query))
+    .forEach((task, index) => {
+
+      const li = document.createElement("li");
+      if (task.completed) li.classList.add("completed");
+
+      li.innerHTML = `
         <span>
-          <input type="checkbox" class="toggle"
-            ${task.completed ? "checked" : ""}
-            onclick="toggleTask(${task.id})">
+          <input type="checkbox" ${task.completed ? "checked" : ""}>
           ${task.text}
         </span>
         <div class="actions">
-          <button class="edit" onclick="editTask(${task.id})">Edit</button>
-          <button class="delete" onclick="deleteTask(${task.id})">Delete</button>
+          <button class="edit">Edit</button>
+          <button class="delete">Delete</button>
         </div>
-      </li>
-    `;
-  });
+      `;
+
+      li.querySelector("input").onclick = () => {
+        task.completed = !task.completed;
+        saveTasks();
+        renderTasks();
+      };
+
+      li.querySelector(".edit").onclick = () => {
+        const text = prompt("Edit task:", task.text);
+        if (text && text.trim()) {
+          task.text = text.trim();
+          saveTasks();
+          renderTasks();
+        }
+      };
+
+      li.querySelector(".delete").onclick = () => {
+        tasks.splice(index, 1);
+        saveTasks();
+        renderTasks();
+      };
+
+      taskList.appendChild(li);
+    });
 }
 
 function addTask() {
-  const input = document.getElementById("taskInput");
-  if (!input.value.trim()) return;
-
-  tasks.push({
-    id: Date.now(),
-    text: input.value.trim(),
-    completed: false
-  });
-
-  input.value = "";
-  saveTasks();
-  renderTasks();
-}
-
-function toggleTask(id) {
-  const task = tasks.find(t => t.id === id);
-  if (task) task.completed = !task.completed;
-  saveTasks();
-  renderTasks();
-}
-
-function editTask(id) {
-  const task = tasks.find(t => t.id === id);
-  if (!task) return;
-
-  const newText = prompt("Edit task:", task.text);
-  if (newText) task.text = newText;
-
-  saveTasks();
-  renderTasks();
-}
-
-function deleteTask(id) {
-  tasks = tasks.filter(t => t.id !== id);
+  const text = taskInput.value.trim();
+  if (!text) return;
+  tasks.push({ text, completed: false, created: Date.now() });
+  taskInput.value = "";
   saveTasks();
   renderTasks();
 }
 
 function searchTasks() {
-  const value = document.getElementById("searchInput").value.toLowerCase();
-  if (!value) renderTasks();
-  else renderTasks(tasks.filter(t => t.text.toLowerCase().includes(value)));
+  renderTasks();
 }
 
-document.getElementById("searchInput").addEventListener("keydown", e => {
-  if (e.key === "Enter") searchTasks();
+taskInput.addEventListener("keydown", e => {
+  if (e.key === "Enter") addTask();
 });
 
-document.getElementById("searchInput").addEventListener("input", e => {
-  if (!e.target.value.trim()) renderTasks();
-});
+searchInput.addEventListener("input", renderTasks);
 
 renderTasks();
